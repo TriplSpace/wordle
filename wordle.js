@@ -5,8 +5,8 @@ var ctx = canvas.getContext("2d");
 document.addEventListener("onclick", mouseClickHandler, false);
 
 // basic object for the grid box
-function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525"){
-	let box = Object.create(Box.prototype);
+function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525") {
+  let box = Object.create(Box.prototype);
   box.x = x;
   box.y = y;
   box.letter = "";
@@ -18,25 +18,48 @@ function gridBox(x, y, width, height, solid = false, border = true, fillColor = 
   box.edge = edgeColor;
   return box;
 }
-Box.prototype.draw = function(){
-	ctx.beginPath();
+Box.prototype.draw = function () {
+  ctx.beginPath();
   ctx.rect(this.x, this.y, this.width, this.height);
   ctx.fillStyle = this.edgeColor;
-  if(this.hasBorder) ctx.stroke();
+  if (this.hasBorder) ctx.stroke();
   ctx.fillStyle = this.fill;
-  if(this.isSolid) ctx.fill();
-  if(this.letter != ""){
-      ctx.font = "16px Arial";
-      ctx.fillStyle = "#000000";
-      ctx.fillText(this.letter, (this.x+this.width-16)/2, (this.y+this.height-32)/2);
+  if (this.isSolid) ctx.fill();
+  if (this.letter != "") {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#000000";
+    ctx.fillText(this.letter, (this.x + this.width - 16) / 2, (this.y + this.height - 32) / 2);
   }
   ctx.closePath();
 }
 
 // basic object for the keyboard key
+function keyBox(x, y, width, height, fillColor = "#FFFFFF"){
+  let key = Object.create(Key.prototype);
+  key.x = x;
+  key.y = y;
+  key.width = width;
+  key.height = height;
+  key.fill = fillColor;
+  return key;
+}
+Key.prototype.draw = function(){
+  //radius for the arc to create rounded keys
+  let radius = 4;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+}
 
 
 // basic object for the state of the game
+function gameState(selectedWord, wordsGuessed){
+
+}
 
 
 
