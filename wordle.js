@@ -32,6 +32,7 @@ document.addEventListener("onclick", mouseClickHandler, false);
   key-bg-correct: #538d4e
   key-bg-absent: #3a3a3c
 */
+
 // basic object for the grid box
 function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525") {
   let box = Object.create(Box.prototype);
