@@ -146,8 +146,9 @@ grid[0][3].ltr = "O";
 grid[0][4].ltr = "!";
 drawGrid();
 
-let keyboard = [];
+
 let keysDict = {};
+// Builds the keyboard in a dictionary, keyed by letter
 function keyboardInit(){
     // Basic values
     let offset = (canvas.width - 484)/2;
