@@ -4,8 +4,8 @@ var ctx = canvas.getContext("2d");
 // Event listeners
 document.addEventListener("onclick", mouseClickHandler, false);
 
-// Basic box object
-function Box(x, y, width, height, solid = false, border = true, fillColor = "#FFFFFF", edgeColor = "#000000"){
+// basic object for the grid box
+function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#FFFFFF", edgeColor = "#000000"){
 	let box = Object.create(Box.prototype);
   box.x = x;
   box.y = y;
@@ -26,6 +26,13 @@ Box.prototype.draw = function(){
   if(this.isSolid) ctx.fill();
   ctx.closePath();
 }
+
+// basic object for the keyboard key
+
+
+// basic object for the state of the game
+
+
 
 // Make an object, letteredBox, that inherits from Box?
 //  - Has slightly diff draw method that draws a letter centered in the box?
