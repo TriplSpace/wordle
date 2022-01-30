@@ -4,6 +4,34 @@ var ctx = canvas.getContext("2d");
 // Event listeners
 document.addEventListener("onclick", mouseClickHandler, false);
 
+/* Found the colors used!
+  green: #6aaa64
+  darkenedGreen: #538d4e
+  yellow: #c9b458
+  darkenedYellow: #b59f3b
+  lightGray: #d8d8d8
+  gray: 86888a
+  darkGray: #939598
+  white: #fff
+  black: #212121
+
+  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif
+  font-size: 16px
+  keyboard-height: 200px
+  game-max-width: 500px
+  ==== We'll be using darkmode theme ======
+  background: #121213
+  color-present: #b59f3b
+  color-correct: #538d4e
+  color-absent: #3a3a3c
+  tile-text-color: #d7dadc
+  key-text-color: #d7dadc
+  key-evaluated-text-color: #d7dadc
+  key-bg: #818384
+  key-bg-present: #b59f3b
+  key-bg-correct: #538d4e
+  key-bg-absent: #3a3a3c
+*/
 // basic object for the grid box
 function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525") {
   let box = Object.create(Box.prototype);
