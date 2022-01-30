@@ -33,26 +33,26 @@ var ctx = canvas.getContext("2d");
   key-bg-absent: #3a3a3c
 */
 
+// A dict to store the basic object colors for easy switching
+let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "538d4e", "key":"d8d8d8"};
 // basic object for the grid box
-function gridBox(x, y, solid = false, border = true, fillColor = "#121213", edgeColor = "#3a3a3c") {
+function gridBox(x, y, solid = false) {
   let box = Object.create(gridBox.prototype);
   box.x = x;
   box.y = y;
   box.ltr = "";
-  box.width = 62; // All boxes are 62x62; box padding is 5 for a total row length of 330
+  box.width = 62; // All boxes are 62x62
   box.height = 62;
   box.isSolid = solid;
-  box.hasBorder = border;
-  box.fill = fillColor;
-  box.edge = edgeColor;
+  box.status = "absent";
   return box;
 }
 gridBox.prototype.draw = function () {
   ctx.beginPath();
   ctx.rect(this.x, this.y, this.width, this.height);
-  ctx.strokeStyle = this.edge;
-  if (this.hasBorder) ctx.stroke();
-  ctx.fillStyle = this.fill;
+  ctx.strokeStyle = statusColors[this.status];
+  ctx.fillStyle = statusColors[this.status];
+  ctx.stroke();
   if (this.isSolid) ctx.fill();
   if (this.letter != "") {
     ctx.font = "16px Helvetica Neue";
@@ -60,24 +60,25 @@ gridBox.prototype.draw = function () {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(this.ltr, this.x + this.width/2, this.y + this.height/2);
-    // How do we center text?
   }
   ctx.closePath();
 }
 
 // basic object for the keyboard key
-function keyBox(x, y, width, height, fillColor = "#FFFFFF"){
+function keyBox(x, y, width, height, text){
   let key = Object.create(keyBox.prototype);
   key.x = x;
   key.y = y;
   key.width = width;
   key.height = height;
-  key.fill = fillColor;
+  key.txt = text;
+  key.status = "key";
   return key;
 }
 keyBox.prototype.draw = function(){
   //radius for the arc to create rounded keys
   let radius = 4;
+  // Trace rounded box
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + width - radius, y);
@@ -88,7 +89,15 @@ keyBox.prototype.draw = function(){
   ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.stroke();
+  // Fill box
+  ctx.fillStyle = statusColors[this.status];
+  ctx.fill();
+  // Add text
+  ctx.font = "16px Helvetica Neue";
+  ctx.fillStyle = "#d7dadc";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(this.txt, this.x + this.width/2, this.y + this.height/2);
 }
 
 
@@ -136,9 +145,6 @@ grid[0][2].ltr = "P";
 grid[0][3].ltr = "L";
 grid[0][4].ltr = "E";
 drawGrid();
-
-
-// Make wordleGrid object (2-D array of letteredBoxes)
 
 // Make keyboard object (dictionary of letteredBoxes)
 
