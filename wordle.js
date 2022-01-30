@@ -155,6 +155,10 @@ example.draw();
       	if inputlen == 5, run comparison
         otherwise do nothing
       - If 0, do nothing
+
+    check row vs column?
+      can narrow it down to one key if so
+      row and then column since the columns are different per row
 */
 
 // Answer selector - runs once at start of game, then starts draw loop
