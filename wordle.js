@@ -33,20 +33,20 @@ document.addEventListener("onclick", mouseClickHandler, false);
   key-bg-absent: #3a3a3c
 */
 // basic object for the grid box
-function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525") {
-  let box = Object.create(Box.prototype);
+function gridBox(x, y, solid = false, border = true, fillColor = "#ffffff", edgeColor = "#252525") {
+  let box = Object.create(gridBox.prototype);
   box.x = x;
   box.y = y;
   box.letter = "";
-  box.width = width;
-  box.height = height;
+  box.width = 62; // All boxes are 62x62; box padding is 5 for a total row length of 330
+  box.height = 62;
   box.isSolid = solid;
   box.hasBorder = border;
   box.fill = fillColor;
   box.edge = edgeColor;
   return box;
 }
-Box.prototype.draw = function () {
+gridBox.prototype.draw = function () {
   ctx.beginPath();
   ctx.rect(this.x, this.y, this.width, this.height);
   ctx.fillStyle = this.edgeColor;
@@ -54,7 +54,7 @@ Box.prototype.draw = function () {
   ctx.fillStyle = this.fill;
   if (this.isSolid) ctx.fill();
   if (this.letter != "") {
-    ctx.font = "16px Arial";
+    ctx.font = "16px Clear Sans";
     ctx.fillStyle = "#000000";
     ctx.fillText(this.letter, (this.x + this.width - 16) / 2, (this.y + this.height - 32) / 2);
   }
@@ -63,7 +63,7 @@ Box.prototype.draw = function () {
 
 // basic object for the keyboard key
 function keyBox(x, y, width, height, fillColor = "#FFFFFF"){
-  let key = Object.create(Key.prototype);
+  let key = Object.create(keyBox.prototype);
   key.x = x;
   key.y = y;
   key.width = width;
@@ -71,7 +71,7 @@ function keyBox(x, y, width, height, fillColor = "#FFFFFF"){
   key.fill = fillColor;
   return key;
 }
-Key.prototype.draw = function(){
+keyBox.prototype.draw = function(){
   //radius for the arc to create rounded keys
   let radius = 4;
   ctx.beginPath();
@@ -89,6 +89,9 @@ function gameState(selectedWord, wordsGuessed){
 
 }
 
+let example = gridBox(10, 10, 80, 80, true);
+example.letter = "A";
+example.draw();
 
 
 // Make an object, letteredBox, that inherits from Box?
