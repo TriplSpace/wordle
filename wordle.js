@@ -34,11 +34,11 @@ var ctx = canvas.getContext("2d");
 */
 
 // basic object for the grid box
-function gridBox(x, y, solid = false, border = true, fillColor = "#121213", edgeColor = "#ffffff") {
+function gridBox(x, y, solid = false, border = true, fillColor = "#121213", edgeColor = "#3a3a3c") {
   let box = Object.create(gridBox.prototype);
   box.x = x;
   box.y = y;
-  box.letter = "";
+  box.ltr = "";
   box.width = 62; // All boxes are 62x62; box padding is 5 for a total row length of 330
   box.height = 62;
   box.isSolid = solid;
@@ -50,14 +50,17 @@ function gridBox(x, y, solid = false, border = true, fillColor = "#121213", edge
 gridBox.prototype.draw = function () {
   ctx.beginPath();
   ctx.rect(this.x, this.y, this.width, this.height);
-  ctx.strokeStyle = this.edgeColor;
+  ctx.strokeStyle = this.edge;
   if (this.hasBorder) ctx.stroke();
   ctx.fillStyle = this.fill;
   if (this.isSolid) ctx.fill();
   if (this.letter != "") {
     ctx.font = "16px Helvetica Neue";
-    ctx.fillStyle = "#000000";
-    ctx.fillText(this.letter, this.x + (this.width - 12)/2, this.y + (this.height+8) / 2);
+    ctx.fillStyle = "#d7dadc";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.ltr, this.x + this.width/2, this.y + this.height/2);
+    // How do we center text?
   }
   ctx.closePath();
 }
@@ -106,24 +109,34 @@ let gridCols = 5;
 let grid = [];
 function gridInit(){
   let padding = 5;
-  let gridX = 75;//(canvas.width - 330);//(gridCols*62 + (gridCols - 1)*padding)) / 2;
-  let gridY = 100;
-  for(let r = 0; r < 6; r++){
+  let gridX = (canvas.width - (gridCols*62 + (gridCols - 1)*padding)) / 2;
+  let gridY = 50;
+  for(let r = 0; r < gridRows; r++){
       grid[r] = [];
-      for(let c = 0; c < 5; c++){
+      for(let c = 0; c < gridCols; c++){
           let x = gridX + (c * (62 + padding));
           let y = gridY + (r * (62 + padding));
           grid[r][c] = gridBox(x, y);
-          grid[r][c].draw();
       }
   }
 }
 
+function drawGrid(){
+    for(let r = 0; r < gridRows; r++){
+      for(let c = 0; c < gridCols; c++){
+        grid[r][c].draw();
+      }
+    }
+}
+
 gridInit();
+grid[0][0].ltr = "A";
+grid[0][1].ltr = "P";
+grid[0][2].ltr = "P";
+grid[0][3].ltr = "L";
+grid[0][4].ltr = "E";
+drawGrid();
 
-
-// Make an object, letteredBox, that inherits from Box?
-//  - Has slightly diff draw method that draws a letter centered in the box?
 
 // Make wordleGrid object (2-D array of letteredBoxes)
 
