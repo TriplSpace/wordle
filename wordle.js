@@ -34,15 +34,15 @@ var ctx = canvas.getContext("2d");
 */
 
 // A dict to store the basic object colors for easy switching
-let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "538d4e", "key":"d8d8d8"};
+let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key":"#86888a"};
 // basic object for the grid box
 function gridBox(x, y, solid = false) {
   let box = Object.create(gridBox.prototype);
   box.x = x;
   box.y = y;
   box.ltr = "";
-  box.width = 62; // All boxes are 62x62
-  box.height = 62;
+  box.width = 62.0; // All boxes are 62x62
+  box.height = 62.0;
   box.isSolid = solid;
   box.status = "absent";
   return box;
@@ -80,15 +80,15 @@ keyBox.prototype.draw = function(){
   let radius = 4;
   // Trace rounded box
   ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.moveTo(this.x + radius, this.y);
+  ctx.lineTo(this.x + this.width - radius, this.y);
+  ctx.quadraticCurveTo(this.x + this.width, this.y, this.x + this.width, this.y + radius);
+  ctx.lineTo(this.x + this.width, this.y + this.height - radius);
+  ctx.quadraticCurveTo(this.x + this.width, this.y + this.height, this.x + this.width - radius, this.y + this.height);
+  ctx.lineTo(this.x + radius, this.y + this.height);
+  ctx.quadraticCurveTo(this.x, this.y + this.height, this.x, this.y + this.height - radius);
+  ctx.lineTo(this.x, this.y + radius);
+  ctx.quadraticCurveTo(this.x, this.y, this.x + radius, this.y);
   // Fill box
   ctx.fillStyle = statusColors[this.status];
   ctx.fill();
@@ -139,13 +139,64 @@ function drawGrid(){
 }
 
 gridInit();
-grid[0][0].ltr = "A";
-grid[0][1].ltr = "P";
-grid[0][2].ltr = "P";
-grid[0][3].ltr = "L";
-grid[0][4].ltr = "E";
+grid[0][0].ltr = "D";
+grid[0][1].ltr = "E";
+grid[0][2].ltr = "M";
+grid[0][3].ltr = "O";
+grid[0][4].ltr = "!";
 drawGrid();
 
+let keyboard = [];
+let keysDict = {};
+function keyboardInit(){
+    // Basic values
+    let offset = (canvas.width - 484)/2;
+    let hPadding = 6.0;
+    let vPadding = 8.0;
+    let boardY = canvas.height - 200.0;
+    let kWidth = 43.0;
+    let kHeight = 58.0;
+
+    // Make row 1
+    let row = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
+    for(let i = 0; i < 10; i++){
+        let kX = i*(kWidth + hPadding) + offset;
+        let kY = boardY;
+        keysDict[row[i]] = keyBox(kX, kY, kWidth, kHeight, row[i]);
+    }
+    
+    kWidth = 43.59; // It's a little bigger for the bottom 2 rows
+    // Make row 2
+    row = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+    for(i = 0; i < 9; i++){
+      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
+      kY = boardY + kHeight + vPadding;
+      keysDict[row[i]] = keyBox(kX, kY, kWidth, kHeight, row[i]);
+    }
+
+    // ENTER key
+    kY = boardY + 2 * (kHeight + vPadding);
+    keysDict["ENTER"] = keyBox(offset, kY, 64.5, kHeight, "ENTER");
+
+    // Make row 3
+    row = ["Z", "X", "C", "V", "B", "N", "M"];
+    for(i = 1; i < 8; i++){
+      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
+      keysDict[row[i-1]] = keyBox(kX, kY, kWidth, kHeight, row[i-1]);
+    }
+    
+    // DEL key
+    keysDict["DEL"] = keyBox(keysDict["L"].x, kY, 64.5, kHeight, "DEL");
+}
+
+function drawKeyboard(){
+    for(let [ltr, key] of Object.entries(keysDict)){
+        key.draw();
+    }
+}
+
+keyboardInit();
+drawKeyboard();
 // Make keyboard object (dictionary of letteredBoxes)
 
 // Func that checks if the mouse is over a given box
