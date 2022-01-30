@@ -89,7 +89,7 @@ function gameState(selectedWord, wordsGuessed){
 
 }
 
-let example = gridBox(10, 10, 80, 80, true);
+let example = gridBox(10, 10, true);
 example.letter = "A";
 example.draw();
 
