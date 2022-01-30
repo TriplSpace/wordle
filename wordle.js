@@ -62,6 +62,32 @@ gridBox.prototype.draw = function () {
   ctx.closePath();
 }
 
+class gridBox {
+  constructor(x, y, solid = false, border = true, fillColor = "#ffffff", edgeColor = "#252525") {
+    this.x = x;
+    this.y = y;
+    this.solid = solid;
+    this.border = border;
+    this.fillColor = fillColor;
+    this.edgeColor = edgeColor;
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.edgeColor;
+    if (this.hasBorder) ctx.stroke();
+    ctx.fillStyle = this.fill;
+    if (this.isSolid) ctx.fill();
+    if (this.letter != "") {
+      ctx.font = "16px Clear Sans";
+      ctx.fillStyle = "#000000";
+      ctx.fillText(this.letter, (this.x + this.width - 16) / 2, (this.y + this.height - 32) / 2);
+    }
+    ctx.closePath();
+  }
+}
+
 // basic object for the keyboard key
 function keyBox(x, y, width, height, fillColor = "#FFFFFF"){
   let key = Object.create(keyBox.prototype);
