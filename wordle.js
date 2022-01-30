@@ -2,7 +2,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 // Event listeners
-document.addEventListener("onclick", mouseClickHandler, false);
+//document.addEventListener("onclick", mouseClickHandler, false);
 
 /* Found the colors used!
   green: #6aaa64
@@ -10,7 +10,7 @@ document.addEventListener("onclick", mouseClickHandler, false);
   yellow: #c9b458
   darkenedYellow: #b59f3b
   lightGray: #d8d8d8
-  gray: 86888a
+  gray: #86888a
   darkGray: #939598
   white: #fff
   black: #212121
@@ -34,7 +34,7 @@ document.addEventListener("onclick", mouseClickHandler, false);
 */
 
 // basic object for the grid box
-function gridBox(x, y, solid = false, border = true, fillColor = "#ffffff", edgeColor = "#252525") {
+function gridBox(x, y, solid = false, border = true, fillColor = "#121213", edgeColor = "#ffffff") {
   let box = Object.create(gridBox.prototype);
   box.x = x;
   box.y = y;
@@ -50,14 +50,14 @@ function gridBox(x, y, solid = false, border = true, fillColor = "#ffffff", edge
 gridBox.prototype.draw = function () {
   ctx.beginPath();
   ctx.rect(this.x, this.y, this.width, this.height);
-  ctx.fillStyle = this.edgeColor;
+  ctx.strokeStyle = this.edgeColor;
   if (this.hasBorder) ctx.stroke();
   ctx.fillStyle = this.fill;
   if (this.isSolid) ctx.fill();
   if (this.letter != "") {
-    ctx.font = "16px Clear Sans";
+    ctx.font = "16px Helvetica Neue";
     ctx.fillStyle = "#000000";
-    ctx.fillText(this.letter, (this.x + this.width - 16) / 2, (this.y + this.height - 32) / 2);
+    ctx.fillText(this.letter, this.x + (this.width - 12)/2, this.y + (this.height+8) / 2);
   }
   ctx.closePath();
 }
@@ -101,9 +101,25 @@ function gameState(selectedWord, wordsGuessed){
 
 }
 
-let example = gridBox(10, 10, true);
-example.letter = "A";
-example.draw();
+let gridRows = 6;
+let gridCols = 5;
+let grid = [];
+function gridInit(){
+  let padding = 5;
+  let gridX = 75;//(canvas.width - 330);//(gridCols*62 + (gridCols - 1)*padding)) / 2;
+  let gridY = 100;
+  for(let r = 0; r < 6; r++){
+      grid[r] = [];
+      for(let c = 0; c < 5; c++){
+          let x = gridX + (c * (62 + padding));
+          let y = gridY + (r * (62 + padding));
+          grid[r][c] = gridBox(x, y);
+          grid[r][c].draw();
+      }
+  }
+}
+
+gridInit();
 
 
 // Make an object, letteredBox, that inherits from Box?
