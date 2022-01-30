@@ -2,7 +2,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 // Event listeners
-//document.addEventListener("onclick", mouseClickHandler, false);
+// document.addEventListener("onclick", mouseClickHandler, false);
 
 /* Found the colors used!
   green: #6aaa64
