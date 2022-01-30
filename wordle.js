@@ -5,10 +5,11 @@ var ctx = canvas.getContext("2d");
 document.addEventListener("onclick", mouseClickHandler, false);
 
 // basic object for the grid box
-function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#FFFFFF", edgeColor = "#000000"){
+function gridBox(x, y, width, height, solid = false, border = true, fillColor = "#3f3f3f", edgeColor = "#252525"){
 	let box = Object.create(Box.prototype);
   box.x = x;
   box.y = y;
+  box.letter = "";
   box.width = width;
   box.height = height;
   box.isSolid = solid;
@@ -24,6 +25,11 @@ Box.prototype.draw = function(){
   if(this.hasBorder) ctx.stroke();
   ctx.fillStyle = this.fill;
   if(this.isSolid) ctx.fill();
+  if(this.letter != ""){
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#000000";
+      ctx.fillText(this.letter, (this.x+this.width-16)/2, (this.y+this.height-32)/2);
+  }
   ctx.closePath();
 }
 
