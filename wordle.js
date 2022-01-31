@@ -35,7 +35,7 @@ var ctx = canvas.getContext("2d");
 
 // A dict to store the basic object colors for easy switching
 let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key":"#86888a"};
-// gridBox object!
+// gridBox object (for the game board)
 class gridBox{
   constructor(x, y, solid = false){
     this.x = x;
@@ -64,6 +64,7 @@ class gridBox{
   }
 }
 
+// keyBox object (for the keys on the keyboard)
 class keyBox{
   constructor(x, y, width, height, text){
     this.x = x;
@@ -112,6 +113,7 @@ function gameState(selectedWord, wordsGuessed){
 
 }
 
+// builds the game board (might be a 'nicer' way to write this)
 let gridRows = 6;
 let gridCols = 5;
 let grid = [];
@@ -129,6 +131,7 @@ function gridInit(){
   }
 }
 
+// draws the game board
 function drawGrid(){
     for(let r = 0; r < gridRows; r++){
       for(let c = 0; c < gridCols; c++){
@@ -145,9 +148,8 @@ grid[0][3].ltr = "O";
 grid[0][4].ltr = "!";
 drawGrid();
 
-
-let keysDict = {};
 // Builds the keyboard in a dictionary, keyed by letter
+let keysDict = {};
 function keyboardInit(){
     // Basic values
     let offset = (canvas.width - 484)/2;
@@ -188,7 +190,7 @@ function keyboardInit(){
     // DEL key
     keysDict["DEL"] = new keyBox(keysDict["L"].x, kY, 64.5, kHeight, "DEL");
 }
-
+// draws the keyboard
 function drawKeyboard(){
     for(let [ltr, key] of Object.entries(keysDict)){
         key.draw();
@@ -197,7 +199,6 @@ function drawKeyboard(){
 
 keyboardInit();
 drawKeyboard();
-// Make keyboard object (dictionary of letteredBoxes)
 
 // Func that checks if the mouse is over a given box
 //  - Use mouseover event??? Look into ways this can be done
