@@ -54,7 +54,7 @@ class gridBox{
     ctx.stroke();
     if (this.isSolid) ctx.fill();
     if (this.letter != "") {
-      ctx.font = "16px Helvetica Neue";
+      ctx.font = "bold 30px Helvetica Neue";
       ctx.fillStyle = "#d7dadc";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -92,7 +92,7 @@ class keyBox{
     ctx.fillStyle = statusColors[this.status];
     ctx.fill();
     // Add text
-    ctx.font = "16px Helvetica Neue";
+    ctx.font = "bold 14px Helvetica Neue";
     ctx.fillStyle = "#d7dadc";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
