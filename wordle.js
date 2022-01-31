@@ -35,69 +35,68 @@ var ctx = canvas.getContext("2d");
 
 // A dict to store the basic object colors for easy switching
 let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key":"#86888a"};
-// basic object for the grid box
-function gridBox(x, y, solid = false) {
-  let box = Object.create(gridBox.prototype);
-  box.x = x;
-  box.y = y;
-  box.ltr = "";
-  box.width = 62.0; // All boxes are 62x62
-  box.height = 62.0;
-  box.isSolid = solid;
-  box.status = "absent";
-  return box;
+// gridBox object!
+class gridBox{
+  constructor(x, y, solid = false){
+    this.x = x;
+    this.y = y;
+    this.ltr = "";
+    this.width = 62.0; // All boxes are 62x62
+    this.height = 62.0;
+    this.isSolid = solid;
+    this.status = "absent";
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.strokeStyle = statusColors[this.status];
+    ctx.fillStyle = statusColors[this.status];
+    ctx.stroke();
+    if (this.isSolid) ctx.fill();
+    if (this.letter != "") {
+      ctx.font = "16px Helvetica Neue";
+      ctx.fillStyle = "#d7dadc";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.ltr, this.x + this.width/2, this.y + this.height/2);
+    }
+    ctx.closePath();
+  }
 }
-gridBox.prototype.draw = function () {
-  ctx.beginPath();
-  ctx.rect(this.x, this.y, this.width, this.height);
-  ctx.strokeStyle = statusColors[this.status];
-  ctx.fillStyle = statusColors[this.status];
-  ctx.stroke();
-  if (this.isSolid) ctx.fill();
-  if (this.letter != "") {
+
+class keyBox{
+  constructor(x, y, width, height, text){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.txt = text;
+    this.status = "key";
+  }
+  draw(){
+    //radius for the arc to create rounded keys
+    let radius = 4;
+    // Trace rounded box
+    ctx.beginPath();
+    ctx.moveTo(this.x + radius, this.y);
+    ctx.lineTo(this.x + this.width - radius, this.y);
+    ctx.quadraticCurveTo(this.x + this.width, this.y, this.x + this.width, this.y + radius);
+    ctx.lineTo(this.x + this.width, this.y + this.height - radius);
+    ctx.quadraticCurveTo(this.x + this.width, this.y + this.height, this.x + this.width - radius, this.y + this.height);
+    ctx.lineTo(this.x + radius, this.y + this.height);
+    ctx.quadraticCurveTo(this.x, this.y + this.height, this.x, this.y + this.height - radius);
+    ctx.lineTo(this.x, this.y + radius);
+    ctx.quadraticCurveTo(this.x, this.y, this.x + radius, this.y);
+    // Fill box
+    ctx.fillStyle = statusColors[this.status];
+    ctx.fill();
+    // Add text
     ctx.font = "16px Helvetica Neue";
     ctx.fillStyle = "#d7dadc";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(this.ltr, this.x + this.width/2, this.y + this.height/2);
+    ctx.fillText(this.txt, this.x + this.width/2, this.y + this.height/2);
   }
-  ctx.closePath();
-}
-
-// basic object for the keyboard key
-function keyBox(x, y, width, height, text){
-  let key = Object.create(keyBox.prototype);
-  key.x = x;
-  key.y = y;
-  key.width = width;
-  key.height = height;
-  key.txt = text;
-  key.status = "key";
-  return key;
-}
-keyBox.prototype.draw = function(){
-  //radius for the arc to create rounded keys
-  let radius = 4;
-  // Trace rounded box
-  ctx.beginPath();
-  ctx.moveTo(this.x + radius, this.y);
-  ctx.lineTo(this.x + this.width - radius, this.y);
-  ctx.quadraticCurveTo(this.x + this.width, this.y, this.x + this.width, this.y + radius);
-  ctx.lineTo(this.x + this.width, this.y + this.height - radius);
-  ctx.quadraticCurveTo(this.x + this.width, this.y + this.height, this.x + this.width - radius, this.y + this.height);
-  ctx.lineTo(this.x + radius, this.y + this.height);
-  ctx.quadraticCurveTo(this.x, this.y + this.height, this.x, this.y + this.height - radius);
-  ctx.lineTo(this.x, this.y + radius);
-  ctx.quadraticCurveTo(this.x, this.y, this.x + radius, this.y);
-  // Fill box
-  ctx.fillStyle = statusColors[this.status];
-  ctx.fill();
-  // Add text
-  ctx.font = "16px Helvetica Neue";
-  ctx.fillStyle = "#d7dadc";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(this.txt, this.x + this.width/2, this.y + this.height/2);
 }
 
 
@@ -125,7 +124,7 @@ function gridInit(){
       for(let c = 0; c < gridCols; c++){
           let x = gridX + (c * (62 + padding));
           let y = gridY + (r * (62 + padding));
-          grid[r][c] = gridBox(x, y);
+          grid[r][c] = new gridBox(x, y);
       }
   }
 }
@@ -163,31 +162,31 @@ function keyboardInit(){
     for(let i = 0; i < 10; i++){
         let kX = i*(kWidth + hPadding) + offset;
         let kY = boardY;
-        keysDict[row[i]] = keyBox(kX, kY, kWidth, kHeight, row[i]);
+        keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
     }
     
-    kWidth = 43.59; // It's a little bigger for the bottom 2 rows
+    kWidth = 43.59; // The keys are a little wider for the bottom 2 rows
     // Make row 2
     row = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
     for(i = 0; i < 9; i++){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
       kY = boardY + kHeight + vPadding;
-      keysDict[row[i]] = keyBox(kX, kY, kWidth, kHeight, row[i]);
+      keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
     }
 
     // ENTER key
     kY = boardY + 2 * (kHeight + vPadding);
-    keysDict["ENTER"] = keyBox(offset, kY, 64.5, kHeight, "ENTER");
+    keysDict["ENTER"] = new keyBox(offset, kY, 64.5, kHeight, "ENTER");
 
     // Make row 3
     row = ["Z", "X", "C", "V", "B", "N", "M"];
     for(i = 1; i < 8; i++){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
-      keysDict[row[i-1]] = keyBox(kX, kY, kWidth, kHeight, row[i-1]);
+      keysDict[row[i-1]] = new keyBox(kX, kY, kWidth, kHeight, row[i-1]);
     }
     
     // DEL key
-    keysDict["DEL"] = keyBox(keysDict["L"].x, kY, 64.5, kHeight, "DEL");
+    keysDict["DEL"] = new keyBox(keysDict["L"].x, kY, 64.5, kHeight, "DEL");
 }
 
 function drawKeyboard(){
