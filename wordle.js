@@ -200,6 +200,20 @@ function drawKeyboard(){
 keyboardInit();
 drawKeyboard();
 
+function mouseClickHandler(e){
+    // Get the mouse location
+    let mX = e.clientX - canvas.offsetLeft;
+    let mY = e.clientY - canvas.offsetTop;
+    // This SHOULD be able to return a dict with the one key that was pressed (if any)
+    let clicked = keysDict.filter(k => (k.x <= mX) && ((k.x + k.width) >= mX)).filter(k => (k.y <= mY) && ((k.y + k.height) >= mY));
+    // We then check to see if we actually got a key
+    if(clicked.length == 1){
+      // If we got one, and only one, key, then we can work with that!
+      // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
+      // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
+      // I may leave this part up to you, John, because you said you were looking at the game state stuff
+    }
+}
 // Func that checks if the mouse is over a given box
 //  - Use mouseover event??? Look into ways this can be done
 
