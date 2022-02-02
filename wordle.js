@@ -171,7 +171,7 @@ class gameState {
 
 // grid class to set up and maintain the state of the grid
 class grid {
-  constructor(rows, cols, word) {
+  constructor(rows, cols) {
     // basic values
     this.grid = [];
     this.rows = rows;
@@ -181,7 +181,7 @@ class grid {
     let padding = 5;
     // set up the x and y for the top left corner
     let gridX = (canvas.width - (this.cols * 62 + (this.cols - 1) * padding)) / 2;
-    let gridY = 50;
+    let gridY = 150;
 
     // iterate through every gridBox we need
     // draw it at the right location
