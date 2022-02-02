@@ -1,8 +1,5 @@
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-
-// Event listeners
-// document.addEventListener("onclick", mouseClickHandler, false);
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
 
 /* Found the colors used!
   green: #6aaa64
@@ -32,6 +29,26 @@ var ctx = canvas.getContext("2d");
   key-bg-correct: #538d4e
   key-bg-absent: #3a3a3c
 */
+
+// Event listeners
+canvas.addEventListener("click", mouseClickHandler, false);
+
+function mouseClickHandler(e){
+  // Get the mouse location
+  let mX = e.clientX - canvas.offsetLeft;
+  let mY = e.clientY - canvas.offsetTop;
+  console.log(mX, mY);
+  // This SHOULD be able to return a dict with the one key that was pressed (if any)
+  let clicked = keysDict.filter(k => (k.x <= mX) && ((k.x + k.width) >= mX)).filter(k => (k.y <= mY) && ((k.y + k.height) >= mY));
+  // We then check to see if we actually got a key
+  if(clicked.length == 1){
+    return;
+    // If we got one, and only one, key, then we can work with that!
+    // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
+    // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
+    // I may leave this part up to you, John, because you said you were looking at the game state stuff
+  }
+}
 
 // A dict to store the basic object colors for easy switching
 let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key":"#86888a"};
@@ -165,6 +182,7 @@ function keyboardInit(){
         let kX = i*(kWidth + hPadding) + offset;
         let kY = boardY;
         keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
+        console.log(row[i]);
     }
     
     kWidth = 43.59; // The keys are a little wider for the bottom 2 rows
@@ -174,6 +192,7 @@ function keyboardInit(){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
       kY = boardY + kHeight + vPadding;
       keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
+      console.log(row[i]);
     }
 
     // ENTER key
@@ -185,6 +204,7 @@ function keyboardInit(){
     for(i = 1; i < 8; i++){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
       keysDict[row[i-1]] = new keyBox(kX, kY, kWidth, kHeight, row[i-1]);
+      console.log(row[i-1]);
     }
     
     // DEL key
@@ -200,20 +220,6 @@ function drawKeyboard(){
 keyboardInit();
 drawKeyboard();
 
-function mouseClickHandler(e){
-    // Get the mouse location
-    let mX = e.clientX - canvas.offsetLeft;
-    let mY = e.clientY - canvas.offsetTop;
-    // This SHOULD be able to return a dict with the one key that was pressed (if any)
-    let clicked = keysDict.filter(k => (k.x <= mX) && ((k.x + k.width) >= mX)).filter(k => (k.y <= mY) && ((k.y + k.height) >= mY));
-    // We then check to see if we actually got a key
-    if(clicked.length == 1){
-      // If we got one, and only one, key, then we can work with that!
-      // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
-      // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
-      // I may leave this part up to you, John, because you said you were looking at the game state stuff
-    }
-}
 // Func that checks if the mouse is over a given box
 //  - Use mouseover event??? Look into ways this can be done
 
