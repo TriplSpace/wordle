@@ -2,16 +2,19 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
-// add global for clicked
-let clicked = "";
-
 // wordlist
 const wordList = ["aback", "abase", "abate", "abaya", "abbey", "abbot", "abets", "abhor", "abide", "abode", "abort", "about", "above", "abuse", "abuts", "abyss", "ached", "aches", "acids", "acing", "ackee", "acorn", "acres", "acrid", "acted", "actin", "actor", "acute", "adage", "adapt", "added", "adder", "addle", "adept", "adieu", "adios", "adits", "adman", "admin", "admit", "adobe", "adobo", "adopt", "adore", "adorn", "adult", "adzes", "aegis", "aeons", "aerie", "affix", "afire", "afoot", "afore", "after", "again", "agape", "agate", "agave", "agent", "aggro", "agile", "aging", "aglow", "agony", "agora", "agree", "ahead", "ahold", "aided", "aider", "aides", "ailed", "aimed", "aimer", "aioli", "aired", "aisle", "alarm", "album", "alder", "aleph", "alert", "algae", "algal", "alias", "alibi", "alien", "align", "alike", "alive", "alkyd", "alkyl", "allay", "alley", "allot", "allow", "alloy", "allyl", "aloes", "aloft", "aloha", "alone", "along", "aloof", "aloud", "alpha", "altar", "alter", "altos", "alums", "amass", "amaze", "amber", "ambit", "amble", "ambos", "amend", "amide", "amine", "amino", "amiss", "amity", "amnio", "among", "amour", "amped", "ample", "amply", "amuse", "ancho", "angel", "anger", "angle", "angry", "angst", "anima", "anime", "anion", "anise", "ankle", "annas", "annex", "annoy", "annul", "anode", "anole", "antic", "antis", "antsy", "anvil", "aorta", "apace", "apart", "aphid", "apnea", "apple", "apply", "apron", "apses", "apter", "aptly", "aquas", "arbor", "ardor", "areal", "areas", "areca", "arena", "argon", "argot", "argue", "argus", "arias", "arils", "arise", "armed", "armor", "aroma", "arose", "array", "arrow", "arses", "arson", "artsy", "asana", "ascot", "ashen", "ashes", "aside", "asked", "asker", "askew", "aspen", "aspic", "assay", "asses", "asset", "aster", "astir", "asura", "atlas", "atman", "atoll", "atoms", "atone", "atopy", "attic", "audio", "audit", "auger", "aught", "augur", "aunts", "aunty", "aural", "auras", "autos", "auxin", "avail", "avers", "avert", "avian", "avoid", "avows", "await", "awake", "award", "aware", "awash", "awful", "awoke", "axels", "axial", "axils", "axing", "axiom", "axion", "axles", "axons", "azide", "azole", "azure"];
+
+// store basic colors for wordle
+const statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key": "#86888a"};
+
+// add global for clicked
+let clicked = "";
 
 // Event listeners
 canvas.addEventListener("click", mouseClickHandler, false);
 
-function mouseClickHandler(e){
+function mouseClickHandler(e) {
   // Get the mouse location
   let mX = e.clientX - canvas.offsetLeft;
   let mY = e.clientY - canvas.offsetTop;
@@ -25,23 +28,22 @@ function mouseClickHandler(e){
     let inHeight = (entry[1].y <= mY) && ((entry[1].y + entry[1].height) >= mY);
     // check if click location in the width of current key
     let inWidth = (entry[1].x <= mX) && ((entry[1].x + entry[1].width) >= mX);
+
+    // if both, set clicked to the entry
+    // otherwise clicked will remain an empty string
     if (inHeight && inWidth) {
       clicked = entry[0];
     }
   }
-  // We then check to see if we actually got a key
-  console.log(clicked);
-  // If we got one, and only one, key, then we can work with that!
-  // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
-  // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
-  // I may leave this part up to you, John, because you said you were looking at the game state stuff
+  // call the update function
+  // TODO
+  print(clicked);
 }
 
-// A dict to store the basic object colors for easy switching
-let statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key":"#86888a"};
 // gridBox object (for the game board)
-class gridBox{
-  constructor(x, y, solid = false){
+class gridBox {
+  // set up basic aspects of gridBox object
+  constructor(x, y, solid = false) {
     this.x = x;
     this.y = y;
     this.ltr = "";
@@ -50,7 +52,9 @@ class gridBox{
     this.isSolid = solid;
     this.status = "absent";
   }
-  draw(){
+
+  // draw gridBox
+  draw() {
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.width, this.height);
     ctx.strokeStyle = statusColors[this.status];
@@ -62,15 +66,16 @@ class gridBox{
       ctx.fillStyle = "#d7dadc";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(this.ltr, this.x + this.width/2, this.y + this.height/2);
+      ctx.fillText(this.ltr, (this.x + this.width / 2), (this.y + this.height / 2));
     }
     ctx.closePath();
   }
 }
 
 // keyBox object (for the keys on the keyboard)
-class keyBox{
-  constructor(x, y, width, height, text){
+class keyBox {
+  // set up basics of keyBox object
+  constructor(x, y, width, height, text) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -78,7 +83,9 @@ class keyBox{
     this.txt = text;
     this.status = "key";
   }
-  draw(){
+
+  // draw keyBox object
+  draw() {
     //radius for the arc to create rounded keys
     let radius = 4;
     // Trace rounded box
@@ -121,6 +128,7 @@ class gameState {
 
 game = new gameState(wordList, true);
 
+/* WORKING - ALL TRANSFERRED TO class grid
 // builds the game board (might be a 'nicer' way to write this)
 let gridRows = 6;
 let gridCols = 5;
@@ -155,7 +163,6 @@ grid[0][2].ltr = "M";
 grid[0][3].ltr = "O";
 grid[0][4].ltr = "!";
 drawGrid();
-
 // Builds the keyboard in a dictionary, keyed by letter
 const keyMap = new Map();
 function keyboardInit(){
@@ -211,6 +218,138 @@ function drawKeyboard(){
 
 keyboardInit();
 drawKeyboard();
+*/
+
+// grid class to set up and maintain the state of the grid
+class grid {
+  constructor(rows, cols, word) {
+    // basic values
+    this.grid = [];
+    this.rows = rows;
+    this.cols = cols;
+
+    // initialize grid, but don't draw
+    let padding = 5;
+    // set up the x and y for the top left corner
+    let gridX = (canvas.width - (this.cols * 62 + (this.cols - 1) * padding)) / 2;
+    let gridY = 50;
+
+    // iterate through every gridBox we need
+    // draw it at the right location
+    for (let r = 0; r < this.rows; r++) {
+        this.grid[r] = [];
+        for (let c = 0; c < this.cols; c++) {
+            let x = gridX + (c * (62 + padding));
+            let y = gridY + (r * (62 + padding));
+            this.grid[r][c] = new gridBox(x, y);
+      }
+    }
+  }
+
+  // draw grid
+  draw() {
+    // for each row
+    for(let r = 0; r < this.rows; r++) {
+      // for each column
+      for(let c = 0; c < this.cols; c++) {
+        // call the keyBox there's draw method
+        this.grid[r][c].draw();
+      }
+    }
+  }
+
+  // update letter in grid at row, col
+  updateLetter(letter, row, col) {
+    this.grid[row][col].ltr = letter;
+  }
+
+  // update color/status of grid box at row, col
+  updateColor(status, row, col) {
+    this.grid[row][col].status = status;
+  }
+}
+
+// keyboard class to set up and maintain the state of the keyboard
+class keyboard {
+  constructor() {
+    // map to hold all of the keys and their state
+    this.keyMap = new Map();
+
+    // basic values to locate the keyboard and the keys on the canvas
+    let offset = (canvas.width - 484) / 2;
+    let hPadding = 6.0;
+    let vPadding = 8.0;
+    let boardY = canvas.height - 200.0;
+    let kWidth = 43.0;
+    let kHeight = 58.0;
+
+    // set up row 1 of the keyboard
+    let row = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
+    for (let i = 0; i < 10; i++) {
+        let kX = i * (kWidth + hPadding) + offset;
+        let kY = boardY;
+        this.keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
+    }
+    
+    // update key width for row two
+    kWidth = 43.59; // The keys are a little wider for the bottom 2 rows
+
+    // set up row two
+    row = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+    for (let i = 0; i < 9; i++) {
+      let kX = i * (kWidth + hPadding) + (kWidth / 2) + offset;
+      let kY = boardY + kHeight + vPadding;
+      this.keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
+    }
+
+    // set up enter key
+    let kY = boardY + 2 * (kHeight + vPadding);
+    this.keyMap.set("ENTER", new keyBox(offset, kY, 64.5, kHeight, "ENTER"));
+
+    // set up row three
+    row = ["Z", "X", "C", "V", "B", "N", "M"];
+    for (let i = 1; i < 8; i++) {
+      let kX = i * (kWidth + hPadding) + (kWidth / 2) + offset;
+      this.keyMap.set(row[i - 1], new keyBox(kX, kY, kWidth, kHeight, row[i-1]));
+    }
+    
+    // set up del key
+    this.keyMap.set("DEL", new keyBox(this.keyMap.get("L").x, kY, 64.5, kHeight, "DEL"));
+  }
+
+  // draw keyboard
+  draw() {
+    for (let key of this.keyMap.values()) {
+      key.draw();
+    }
+  }
+
+  // update key color
+  updateColor(letter, status) {
+    // get current keyBox for letter
+    let curr = this.keyMap.get(letter);
+    // change its status to whatever the new status is
+    curr.status = status;
+    
+    // set the entry in keyMap to the updated keyBox
+    this.keyMap.set(letter, curr);
+  }
+}
+
+// wordle class to set up and maintain the overall game
+class wordle {
+  constructor() {
+    // initialize grid with 6 rows, 5 cols
+    this.grid = new grid(6, 5);
+    this.grid.draw();
+
+    // initialize keyboard
+    this.keyboard = new keyboard();
+    this.keyboard.draw();
+  }
+}
+
+game = new wordle();
 
 // Func that checks if the mouse is over a given box
 //  - Use mouseover event??? Look into ways this can be done
