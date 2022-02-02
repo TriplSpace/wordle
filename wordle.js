@@ -118,63 +118,57 @@ class gameState {
     this.wordList = wordList;
 
     // pick a random target word from the list
-    this.target = this.wordList[Math.floor(Math.random() * this.wordList.length)];
+    this.target = this.wordList[Math.floor(Math.random() * this.wordList.length)].toUpperCase();
     // print the word to console if we're testing
     if (testing) console.log(this.target);
-
-    // set up to hold previous guesses
-    this.guesses = [];
   }
 
-  // when enter happens on mouseHandler, calls update
-  update(guess, row){ 
-    let lettersMatched = 0;
-    let updatedRow = [[]];
-    for (let i = 0; i < this.target.length(); i++){
-      //letter is in the word
-      if(guess.includes(this.target[i])){
-          if(indexOf(this.target[i]) == indexOf(guess[i])){
-            // box color is green
-            //grid[row][i].status = "correct"; ?
-            updatedRow[[i][0]] = guess[i];
-            updatedRow[[i][1]] = "correct";
-            lettersMatched++;
-          }
-          else{
-            //box color is yellow
-            //grid[row][i].status = "present";?
-            updatedRow[[i][0]] = guess[i];
-            updatedRow[[i][1]] = "present";
+  // update row based on guess
+  check(guess) {
+    // we'll return a list of lists of the letters in guess
+    // and their new colors
+    let newKeyColors = [];
 
-          }
-      }
-      //box color is grey
-      else{
-        //grid[row][i].status = "absent"
-        updatedRow[[i][0]] = guess[i];
-        updatedRow[[i][1]] = "absent";
-      }
+    // keep track of prior seen letters
+    let priors = [];
 
+    // for each letter in guess, check if it's in target
+    for (let i = 0; i < guess.length; i++) {
+      // check where in target guess lies
+      if (guess[i] == this.target[i]) {
+        // if it's at the same index, correct
+        let correct = [guess[i], "correct"];
+
+        // add to priors
+        priors.push(guess[i]);
+
+        // add that to newColors
+        newKeyColors.push(correct);
+
+      } else if (this.target.includes(guess[i]) && !priors.includes(guess[i])) {
+        // otherwise, present
+        let present = [guess[i], "present"];
+
+        // add to priors
+        priors.push(guess[i]);
+
+        // add that to newColors
+        newKeyColors.push(present);
+
+      } else {
+        // add guessed letter and "absent" to newColors
+        let absent = [guess[i], "absent"];
+
+        // add that to newColors
+        newKeyColors.push(absent);
+
+      }
     }
 
-    if(lettersMatched == 5){
-      //correctly guess the word
-      alert("Congrats! Word correctly guessed!")
-    }
-    
-    //list of keys to color and associated color
-    return updatedRow;
+    // send back the new key colors
+    console.log(newKeyColors);
+    return newKeyColors;
   }
-
-
-  //Checks latest input string
-  // If input[i] == answer[i], make corresponding box green(inc keyboard)
-  // Else if input[i] in answer, make corresponding box yellow
-  // Else, make corresponding box black / grey
-  // If all passed, game win
-  // Else increment row
-  // If row > 5(so 6 tries total), game over
-
 }
 
 // grid class to set up and maintain the state of the grid
@@ -223,6 +217,16 @@ class grid {
   // update color/status of grid box at row, col
   updateColor(status, row, col) {
     this.grid[row][col].status = status;
+  }
+
+  // get the letter at row, col
+  getLetter(row, col) {
+    return this.grid[row][col].ltr;
+  }
+
+  // set solid fill on row, col
+  setSolid(row, col) {
+    this.grid[row][col].isSolid = true;
   }
 }
 
@@ -291,6 +295,15 @@ class keyboard {
     // set the entry in keyMap to the updated keyBox
     this.keyMap.set(letter, curr);
   }
+
+  // get current status
+  getStatus(letter) {
+    // get current keyBox for letter
+    let curr = this.keyMap.get(letter);
+    
+    // return the current status of the letter
+    return curr.status;
+  }
 }
 
 // wordle class to set up and maintain the overall game
@@ -305,11 +318,16 @@ class wordle {
     this.keyboard.draw();
 
     // initialize game state
-    this.gameState = new gameState(words, testing);
+    this.state = new gameState(words, testing);
 
     // set initial row and column
     this.currRow = 0;
     this.currCol = 0;
+
+    // bool to check if user has won
+    this.won = false;
+    // bool to check for failure
+    this.failed = false;
   }
 
   // update keyboard and keygrid given the key that was just pressed
@@ -320,14 +338,84 @@ class wordle {
     // handle key being enter, del, or alpha
     if (key == "ENTER") {
       // build the total string for this row's guess
-      let guess = 
+      let guess = "";
+      for (let col = 0; col < 5; col++) {
+        guess += this.grid.getLetter(this.currRow, col);
+      }
 
-      // call the gamestate update
+      // check length of guess
+      if (guess.length < 5) {
+        setTimeout(this.short(), 10);
+      } else if (guess.length == 5 && !this.state.wordList.includes(guess)) {
+        // check if word in list
+        setTimeout(this.not(), 10);
+      } else { // if no errors in input
 
-      // color everything that's now supposed to be colored
+        // call the gamestate update
+        // we get a list of keys to color back
+        let newKeyColors = this.state.check(guess);
 
-      // increment row
-      this.currRow++;
+        // color everything that's now supposed to be colored
+        // don't color a key if it's already not set to absent (or whatever the status is)
+        // count number of correct letters
+        let correctCount = 0;
+        for (let col = 0; col < 5; col++) {
+          // get letter and new status from returned array
+          let letter = newKeyColors[col][0];
+          let status = newKeyColors[col][1];
+
+          console.log(letter, status);
+
+          if (status == "correct") {
+            // update color in grid
+            this.grid.updateColor(status, this.currRow, col);
+            this.grid.setSolid(this.currRow, col);
+
+            // update color in keyboard
+            this.keyboard.updateColor(letter, status);
+
+            // increment correct count
+            correctCount++;
+
+          } else if (status == "present") {
+            // update color in grid
+            this.grid.updateColor(status, this.currRow, col);
+            this.grid.setSolid(this.currRow, col);
+
+            // update color in keyboard if not already correct
+            if (this.keyboard.getStatus(letter) != "correct") {
+              this.keyboard.updateColor(letter, status);
+            }
+
+          } else { // absent
+            // update color in grid
+            this.grid.updateColor(status, this.currRow, col);
+            this.grid.setSolid(this.currRow, col);
+
+            // update color in keyboard only if unchanged so far
+            if (this.keyboard.getStatus(letter) == "key") {
+              this.keyboard.updateColor(letter, status);
+            }
+          }
+
+        }
+        console.log("loop done");
+
+        // check if all 5 were correct
+        if (correctCount == 5) {
+          this.won = true;
+        }
+
+        // increment row and reset column
+        this.currRow++;
+        this.currCol = 0;
+        console.log(this.currRow);
+
+        // set fail true if beyond 6
+        if (this.currRow > 6) {
+          this.failed = true;
+        }
+      }
 
     } else if (key == "DEL") {
       // if del, decrement the column (as long as it's greater than zero)
@@ -352,6 +440,33 @@ class wordle {
     // redraw grid and keyboard
     this.grid.draw();
     this.keyboard.draw();
+
+    if (this.won) setTimeout(this.win(), 10);
+    if (this.failed) setTimeout(this.fail(), 10);
+  }
+
+  // alert and restart if won
+  won() {
+    alert("Amazing! You guessed the word!");
+    document.location.reload();
+    clearInterval(interval); // Needed for Chrome to end game
+  }
+
+  // alert and restart if failed
+  failed() {
+    alert("Sorry! You ran out of guesses!");
+    document.location.reload();
+    clearInterval(interval); // Needed for Chrome to end game
+  }
+
+  // alert if not in wordlist
+  not() {
+    alert("Sorry! Guess not in wordlist!");
+  }
+
+  // alert if too short
+  short() {
+    alert("Guess must be 5 letters!");
   }
 }
 
