@@ -8,22 +8,20 @@ const wordList = ["aback", "abase", "abate", "abaya", "abbey", "abbot", "abets",
 // store basic colors for wordle
 const statusColors = {"absent": "#3a3a3c", "present": "#b59f3b", "correct": "#538d4e", "key": "#86888a"};
 
-// add global for clicked
-let clicked = "";
-
-// Event listeners
+// register event listener for mouse clicks
 canvas.addEventListener("click", mouseClickHandler, false);
 
+// handler for mouse clicks.
 function mouseClickHandler(e) {
   // Get the mouse location
   let mX = e.clientX - canvas.offsetLeft;
   let mY = e.clientY - canvas.offsetTop;
 
-  // reset clicked
-  clicked = "";
+  // hold the clicked letter
+  let clicked = "";
 
   // iterate through all the keys in keymap
-  for (entry of keyMap.entries()) {
+  for (entry of game.keyboard.keyMap.entries()) {
     // check if click location in the height of current key
     let inHeight = (entry[1].y <= mY) && ((entry[1].y + entry[1].height) >= mY);
     // check if click location in the width of current key
@@ -35,9 +33,10 @@ function mouseClickHandler(e) {
       clicked = entry[0];
     }
   }
-  // call the update function
-  // TODO
-  print(clicked);
+  // call the update function if clicked isn't empty
+  if (clicked != "") {
+    game.update(clicked);
+  }
 }
 
 // gridBox object (for the game board)
@@ -114,18 +113,20 @@ class keyBox {
 
 // object for the state of game
 class gameState {
-  guesses = []
-
   constructor(wordList, testing = false) {
     // initialize wordlist to whatever's passed in
-    this.wordList = wordList
+    this.wordList = wordList;
 
     // pick a random target word from the list
     this.target = this.wordList[Math.floor(Math.random() * this.wordList.length)];
     // print the word to console if we're testing
     if (testing) console.log(this.target);
+
+    // set up to hold previous guesses
+    this.guesses = [];
   }
-  //when enter happens on mouseHandler, calls update
+
+  // when enter happens on mouseHandler, calls update
   update(guess, row){ 
     let lettersMatched = 0;
     let updatedRow = [[]];
@@ -175,100 +176,6 @@ class gameState {
   // If row > 5(so 6 tries total), game over
 
 }
-game = new gameState(wordList, true);
-
-/* WORKING - ALL TRANSFERRED TO class grid
-// builds the game board (might be a 'nicer' way to write this)
-let gridRows = 6;
-let gridCols = 5;
-let grid = [];
-function gridInit(){
-  let padding = 5;
-  let gridX = (canvas.width - (gridCols*62 + (gridCols - 1)*padding)) / 2;
-  let gridY = 50;
-  for(let r = 0; r < gridRows; r++){
-      grid[r] = [];
-      for(let c = 0; c < gridCols; c++){
-          let x = gridX + (c * (62 + padding));
-          let y = gridY + (r * (62 + padding));
-          grid[r][c] = new gridBox(x, y);
-      }
-  }
-}
-
-// draws the game board
-function drawGrid(){
-    for(let r = 0; r < gridRows; r++){
-      for(let c = 0; c < gridCols; c++){
-        grid[r][c].draw();
-      }
-    }
-}
-
-gridInit();
-grid[0][0].ltr = "D";
-grid[0][1].ltr = "E";
-grid[0][2].ltr = "M";
-grid[0][3].ltr = "O";
-grid[0][4].ltr = "!";
-drawGrid();
-
-// Builds the keyboard in a map
-const keyMap = new Map();
-function keyboardInit(){
-    // Basic values
-    let offset = (canvas.width - 484) / 2;
-    let hPadding = 6.0;
-    let vPadding = 8.0;
-    let boardY = canvas.height - 200.0;
-    let kWidth = 43.0;
-    let kHeight = 58.0;
-
-    // Make row 1
-    let row = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
-    for(let i = 0; i < 10; i++){
-        let kX = i * (kWidth + hPadding) + offset;
-        let kY = boardY;
-        keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
-        console.log(row[i]);
-    }
-    
-    kWidth = 43.59; // The keys are a little wider for the bottom 2 rows
-    // Make row 2
-    row = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
-    for(i = 0; i < 9; i++){
-      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
-      kY = boardY + kHeight + vPadding;
-      keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
-      console.log(row[i]);
-    }
-
-    // ENTER key
-    kY = boardY + 2 * (kHeight + vPadding);
-    keyMap.set("ENTER", new keyBox(offset, kY, 64.5, kHeight, "ENTER"));
-
-    // Make row 3
-    row = ["Z", "X", "C", "V", "B", "N", "M"];
-    for(i = 1; i < 8; i++){
-      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
-      keyMap.set(row[i-1], new keyBox(kX, kY, kWidth, kHeight, row[i-1]));
-      console.log(row[i-1]);
-    }
-    
-    // DEL key
-    keyMap.set("DEL", new keyBox(keyMap.get("L").x, kY, 64.5, kHeight, "DEL"));
-}
-
-// draws the keyboard
-function drawKeyboard(){
-  for (key of keyMap.values()) {
-    key.draw();
-  }
-}
-
-keyboardInit();
-drawKeyboard();
-*/
 
 // grid class to set up and maintain the state of the grid
 class grid {
@@ -388,7 +295,7 @@ class keyboard {
 
 // wordle class to set up and maintain the overall game
 class wordle {
-  constructor() {
+  constructor(words, testing) {
     // initialize grid with 6 rows, 5 cols
     this.grid = new grid(6, 5);
     this.grid.draw();
@@ -396,17 +303,67 @@ class wordle {
     // initialize keyboard
     this.keyboard = new keyboard();
     this.keyboard.draw();
+
+    // initialize game state
+    this.gameState = new gameState(words, testing);
+
+    // set initial row and column
+    this.currRow = 0;
+    this.currCol = 0;
+  }
+
+  // update keyboard and keygrid given the key that was just pressed
+  update(key) {
+    // clear the board
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // handle key being enter, del, or alpha
+    if (key == "ENTER") {
+      // build the total string for this row's guess
+      let guess = 
+
+      // call the gamestate update
+
+      // color everything that's now supposed to be colored
+
+      // increment row
+      this.currRow++;
+
+    } else if (key == "DEL") {
+      // if del, decrement the column (as long as it's greater than zero)
+      // reset the letter for the box to nothing
+
+      // decrement column count
+      this.currCol = this.currCol > 0 ? (this.currCol - 1) : 0;
+      // if del, remove letter from column
+      this.grid.updateLetter("", this.currRow, this.currCol);
+
+    } else {
+      // if just an alpha key, set the gridBox at current row and column to that key
+      // check that we're within the grid
+      if (this.currCol < 5) {
+        this.grid.updateLetter(key, this.currRow, this.currCol);
+
+        // then increment the column count
+        this.currCol++;
+      }
+    }
+
+    // redraw grid and keyboard
+    this.grid.draw();
+    this.keyboard.draw();
   }
 }
 
-game = new wordle();
+const game = new wordle(wordList, true);
 
+/*
 // Func that checks if the mouse is over a given box
 //  - Use mouseover event??? Look into ways this can be done
 
 // Func that returns letter of which key was clicked (if one was clicked), 0 otherwise
 
-/* Click event handler
+ Click event handler
 		- Ask which key was clicked
     	- If a letter:
       	add to input if inputlen < 5
@@ -417,11 +374,11 @@ game = new wordle();
       	if inputlen == 5, run comparison
         otherwise do nothing
       - If 0, do nothing
-*/
+
 
 // Answer selector - runs once at start of game, then starts draw loop
 
-/* Input comparator
+ Input comparator
 		- Checks latest input string
     	- If input[i] == answer[i], make corresponding box green (inc keyboard)
       - Else if input[i] in answer, make corresponding box yellow
@@ -429,14 +386,14 @@ game = new wordle();
       - If all passed, game win
       - Else increment row
       	- If row > 5 (so 6 tries total), game over
-*/
 
-/* Draw loop
+
+ Draw loop
 		- Constantly updates wordleGrid and keyboard
-*/
+
 
 // DEBUG
-/* Found the colors used!
+ Found the colors used!
   green: #6aaa64
   darkenedGreen: #538d4e
   yellow: #c9b458
@@ -463,4 +420,96 @@ game = new wordle();
   key-bg-present: #b59f3b
   key-bg-correct: #538d4e
   key-bg-absent: #3a3a3c
+
+  WORKING - ALL TRANSFERRED TO class grid
+// builds the game board (might be a 'nicer' way to write this)
+let gridRows = 6;
+let gridCols = 5;
+let grid = [];
+function gridInit(){
+  let padding = 5;
+  let gridX = (canvas.width - (gridCols*62 + (gridCols - 1)*padding)) / 2;
+  let gridY = 50;
+  for(let r = 0; r < gridRows; r++){
+      grid[r] = [];
+      for(let c = 0; c < gridCols; c++){
+          let x = gridX + (c * (62 + padding));
+          let y = gridY + (r * (62 + padding));
+          grid[r][c] = new gridBox(x, y);
+      }
+  }
+}
+
+// draws the game board
+function drawGrid(){
+    for(let r = 0; r < gridRows; r++){
+      for(let c = 0; c < gridCols; c++){
+        grid[r][c].draw();
+      }
+    }
+}
+
+gridInit();
+grid[0][0].ltr = "D";
+grid[0][1].ltr = "E";
+grid[0][2].ltr = "M";
+grid[0][3].ltr = "O";
+grid[0][4].ltr = "!";
+drawGrid();
+
+// Builds the keyboard in a map
+const keyMap = new Map();
+function keyboardInit(){
+    // Basic values
+    let offset = (canvas.width - 484) / 2;
+    let hPadding = 6.0;
+    let vPadding = 8.0;
+    let boardY = canvas.height - 200.0;
+    let kWidth = 43.0;
+    let kHeight = 58.0;
+
+    // Make row 1
+    let row = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
+    for(let i = 0; i < 10; i++){
+        let kX = i * (kWidth + hPadding) + offset;
+        let kY = boardY;
+        keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
+        console.log(row[i]);
+    }
+    
+    kWidth = 43.59; // The keys are a little wider for the bottom 2 rows
+    // Make row 2
+    row = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+    for(i = 0; i < 9; i++){
+      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
+      kY = boardY + kHeight + vPadding;
+      keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
+      console.log(row[i]);
+    }
+
+    // ENTER key
+    kY = boardY + 2 * (kHeight + vPadding);
+    keyMap.set("ENTER", new keyBox(offset, kY, 64.5, kHeight, "ENTER"));
+
+    // Make row 3
+    row = ["Z", "X", "C", "V", "B", "N", "M"];
+    for(i = 1; i < 8; i++){
+      kX = i*(kWidth + hPadding) + kWidth/2 + offset;
+      keyMap.set(row[i-1], new keyBox(kX, kY, kWidth, kHeight, row[i-1]));
+      console.log(row[i-1]);
+    }
+    
+    // DEL key
+    keyMap.set("DEL", new keyBox(keyMap.get("L").x, kY, 64.5, kHeight, "DEL"));
+}
+
+// draws the keyboard
+function drawKeyboard(){
+  for (key of keyMap.values()) {
+    key.draw();
+  }
+}
+
+keyboardInit();
+drawKeyboard();
 */
