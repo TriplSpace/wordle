@@ -111,6 +111,7 @@ class keyBox {
   }
 }
 
+
 // object for the state of game
 class gameState {
   guesses = []
@@ -124,8 +125,56 @@ class gameState {
     // print the word to console if we're testing
     if (testing) console.log(this.target);
   }
-}
+  //when enter happens on mouseHandler, calls update
+  update(guess, row){ 
+    let lettersMatched = 0;
+    let updatedRow = [[]];
+    for (let i = 0; i < this.target.length(); i++){
+      //letter is in the word
+      if(guess.includes(this.target[i])){
+          if(indexOf(this.target[i]) == indexOf(guess[i])){
+            // box color is green
+            //grid[row][i].status = "correct"; ?
+            updatedRow[[i][0]] = guess[i];
+            updatedRow[[i][1]] = "correct";
+            lettersMatched++;
+          }
+          else{
+            //box color is yellow
+            //grid[row][i].status = "present";?
+            updatedRow[[i][0]] = guess[i];
+            updatedRow[[i][1]] = "present";
 
+          }
+      }
+      //box color is grey
+      else{
+        //grid[row][i].status = "absent"
+        updatedRow[[i][0]] = guess[i];
+        updatedRow[[i][1]] = "absent";
+      }
+
+    }
+
+    if(lettersMatched == 5){
+      //correctly guess the word
+      alert("Congrats! Word correctly guessed!")
+    }
+    
+    //list of keys to color and associated color
+    return updatedRow;
+  }
+
+
+  //Checks latest input string
+  // If input[i] == answer[i], make corresponding box green(inc keyboard)
+  // Else if input[i] in answer, make corresponding box yellow
+  // Else, make corresponding box black / grey
+  // If all passed, game win
+  // Else increment row
+  // If row > 5(so 6 tries total), game over
+
+}
 game = new gameState(wordList, true);
 
 /* WORKING - ALL TRANSFERRED TO class grid
@@ -163,7 +212,8 @@ grid[0][2].ltr = "M";
 grid[0][3].ltr = "O";
 grid[0][4].ltr = "!";
 drawGrid();
-// Builds the keyboard in a dictionary, keyed by letter
+
+// Builds the keyboard in a map
 const keyMap = new Map();
 function keyboardInit(){
     // Basic values
