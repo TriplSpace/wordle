@@ -1,34 +1,9 @@
+// get references to canvas and drawing context
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
-/* Found the colors used!
-  green: #6aaa64
-  darkenedGreen: #538d4e
-  yellow: #c9b458
-  darkenedYellow: #b59f3b
-  lightGray: #d8d8d8
-  gray: #86888a
-  darkGray: #939598
-  white: #fff
-  black: #212121
-
-  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif
-  font-size: 16px
-  keyboard-height: 200px
-  game-max-width: 500px
-  ==== We'll be using darkmode theme ======
-  background: #121213
-  color-present: #b59f3b
-  color-correct: #538d4e
-  color-absent: #3a3a3c
-  tile-text-color: #d7dadc
-  key-text-color: #d7dadc
-  key-evaluated-text-color: #d7dadc
-  key-bg: #818384
-  key-bg-present: #b59f3b
-  key-bg-correct: #538d4e
-  key-bg-absent: #3a3a3c
-*/
+// add global for clicked
+let clicked = "";
 
 // Event listeners
 canvas.addEventListener("click", mouseClickHandler, false);
@@ -37,17 +12,26 @@ function mouseClickHandler(e){
   // Get the mouse location
   let mX = e.clientX - canvas.offsetLeft;
   let mY = e.clientY - canvas.offsetTop;
-  console.log(mX, mY);
-  // This SHOULD be able to return a dict with the one key that was pressed (if any)
-  let clicked = keysDict.filter(k => (k.x <= mX) && ((k.x + k.width) >= mX)).filter(k => (k.y <= mY) && ((k.y + k.height) >= mY));
-  // We then check to see if we actually got a key
-  if(clicked.length == 1){
-    return;
-    // If we got one, and only one, key, then we can work with that!
-    // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
-    // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
-    // I may leave this part up to you, John, because you said you were looking at the game state stuff
+
+  // reset clicked
+  clicked = "";
+
+  // iterate through all the keys in keymap
+  for (entry of keyMap.entries()) {
+    // check if click location in the height of current key
+    let inHeight = (entry[1].y <= mY) && ((entry[1].y + entry[1].height) >= mY);
+    // check if click location in the width of current key
+    let inWidth = (entry[1].x <= mX) && ((entry[1].x + entry[1].width) >= mX);
+    if (inHeight && inWidth) {
+      clicked = entry[0];
+    }
   }
+  // We then check to see if we actually got a key
+  console.log(clicked);
+  // If we got one, and only one, key, then we can work with that!
+  // We'll make a function that takes the LETTER/TEXT of the key as an arg, which handles updating the board and stuff
+  // Why a separate function, you ask? To make it easier for us to add in physical keyboard functionality
+  // I may leave this part up to you, John, because you said you were looking at the game state stuff
 }
 
 // A dict to store the basic object colors for easy switching
@@ -166,10 +150,10 @@ grid[0][4].ltr = "!";
 drawGrid();
 
 // Builds the keyboard in a dictionary, keyed by letter
-let keysDict = {};
+const keyMap = new Map();
 function keyboardInit(){
     // Basic values
-    let offset = (canvas.width - 484)/2;
+    let offset = (canvas.width - 484) / 2;
     let hPadding = 6.0;
     let vPadding = 8.0;
     let boardY = canvas.height - 200.0;
@@ -179,9 +163,9 @@ function keyboardInit(){
     // Make row 1
     let row = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
     for(let i = 0; i < 10; i++){
-        let kX = i*(kWidth + hPadding) + offset;
+        let kX = i * (kWidth + hPadding) + offset;
         let kY = boardY;
-        keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
+        keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
         console.log(row[i]);
     }
     
@@ -191,30 +175,31 @@ function keyboardInit(){
     for(i = 0; i < 9; i++){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
       kY = boardY + kHeight + vPadding;
-      keysDict[row[i]] = new keyBox(kX, kY, kWidth, kHeight, row[i]);
+      keyMap.set(row[i], new keyBox(kX, kY, kWidth, kHeight, row[i]));
       console.log(row[i]);
     }
 
     // ENTER key
     kY = boardY + 2 * (kHeight + vPadding);
-    keysDict["ENTER"] = new keyBox(offset, kY, 64.5, kHeight, "ENTER");
+    keyMap.set("ENTER", new keyBox(offset, kY, 64.5, kHeight, "ENTER"));
 
     // Make row 3
     row = ["Z", "X", "C", "V", "B", "N", "M"];
     for(i = 1; i < 8; i++){
       kX = i*(kWidth + hPadding) + kWidth/2 + offset;
-      keysDict[row[i-1]] = new keyBox(kX, kY, kWidth, kHeight, row[i-1]);
+      keyMap.set(row[i-1], new keyBox(kX, kY, kWidth, kHeight, row[i-1]));
       console.log(row[i-1]);
     }
     
     // DEL key
-    keysDict["DEL"] = new keyBox(keysDict["L"].x, kY, 64.5, kHeight, "DEL");
+    keyMap.set("DEL", new keyBox(keyMap.get("L").x, kY, 64.5, kHeight, "DEL"));
 }
+
 // draws the keyboard
 function drawKeyboard(){
-    for(let [ltr, key] of Object.entries(keysDict)){
-        key.draw();
-    }
+  for (key of keyMap.values()) {
+    key.draw();
+  }
 }
 
 keyboardInit();
@@ -252,4 +237,34 @@ drawKeyboard();
 
 /* Draw loop
 		- Constantly updates wordleGrid and keyboard
+*/
+
+// DEBUG
+/* Found the colors used!
+  green: #6aaa64
+  darkenedGreen: #538d4e
+  yellow: #c9b458
+  darkenedYellow: #b59f3b
+  lightGray: #d8d8d8
+  gray: #86888a
+  darkGray: #939598
+  white: #fff
+  black: #212121
+
+  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif
+  font-size: 16px
+  keyboard-height: 200px
+  game-max-width: 500px
+  ==== We'll be using darkmode theme ======
+  background: #121213
+  color-present: #b59f3b
+  color-correct: #538d4e
+  color-absent: #3a3a3c
+  tile-text-color: #d7dadc
+  key-text-color: #d7dadc
+  key-evaluated-text-color: #d7dadc
+  key-bg: #818384
+  key-bg-present: #b59f3b
+  key-bg-correct: #538d4e
+  key-bg-absent: #3a3a3c
 */
