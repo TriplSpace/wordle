@@ -5,6 +5,9 @@ const ctx = canvas.getContext("2d");
 // add global for clicked
 let clicked = "";
 
+// wordlist
+const wordList = ["aback", "abase", "abate", "abaya", "abbey", "abbot", "abets", "abhor", "abide", "abode", "abort", "about", "above", "abuse", "abuts", "abyss", "ached", "aches", "acids", "acing", "ackee", "acorn", "acres", "acrid", "acted", "actin", "actor", "acute", "adage", "adapt", "added", "adder", "addle", "adept", "adieu", "adios", "adits", "adman", "admin", "admit", "adobe", "adobo", "adopt", "adore", "adorn", "adult", "adzes", "aegis", "aeons", "aerie", "affix", "afire", "afoot", "afore", "after", "again", "agape", "agate", "agave", "agent", "aggro", "agile", "aging", "aglow", "agony", "agora", "agree", "ahead", "ahold", "aided", "aider", "aides", "ailed", "aimed", "aimer", "aioli", "aired", "aisle", "alarm", "album", "alder", "aleph", "alert", "algae", "algal", "alias", "alibi", "alien", "align", "alike", "alive", "alkyd", "alkyl", "allay", "alley", "allot", "allow", "alloy", "allyl", "aloes", "aloft", "aloha", "alone", "along", "aloof", "aloud", "alpha", "altar", "alter", "altos", "alums", "amass", "amaze", "amber", "ambit", "amble", "ambos", "amend", "amide", "amine", "amino", "amiss", "amity", "amnio", "among", "amour", "amped", "ample", "amply", "amuse", "ancho", "angel", "anger", "angle", "angry", "angst", "anima", "anime", "anion", "anise", "ankle", "annas", "annex", "annoy", "annul", "anode", "anole", "antic", "antis", "antsy", "anvil", "aorta", "apace", "apart", "aphid", "apnea", "apple", "apply", "apron", "apses", "apter", "aptly", "aquas", "arbor", "ardor", "areal", "areas", "areca", "arena", "argon", "argot", "argue", "argus", "arias", "arils", "arise", "armed", "armor", "aroma", "arose", "array", "arrow", "arses", "arson", "artsy", "asana", "ascot", "ashen", "ashes", "aside", "asked", "asker", "askew", "aspen", "aspic", "assay", "asses", "asset", "aster", "astir", "asura", "atlas", "atman", "atoll", "atoms", "atone", "atopy", "attic", "audio", "audit", "auger", "aught", "augur", "aunts", "aunty", "aural", "auras", "autos", "auxin", "avail", "avers", "avert", "avian", "avoid", "avows", "await", "awake", "award", "aware", "awash", "awful", "awoke", "axels", "axial", "axils", "axing", "axiom", "axion", "axles", "axons", "azide", "azole", "azure"];
+
 // Event listeners
 canvas.addEventListener("click", mouseClickHandler, false);
 
@@ -101,18 +104,22 @@ class keyBox{
   }
 }
 
+// object for the state of game
+class gameState {
+  guesses = []
 
-// basic object for the state of the game
-function gameState(selectedWord, wordsGuessed){
-  let gState = Object.create(Key.prototype);
-  key.x = x;
-  key.y = y;
-  key.width = width;
-  key.height = height;
-  key.fill = fillColor;
-  return key;
+  constructor(wordList, testing = false) {
+    // initialize wordlist to whatever's passed in
+    this.wordList = wordList
 
+    // pick a random target word from the list
+    this.target = this.wordList[Math.floor(Math.random() * this.wordList.length)];
+    // print the word to console if we're testing
+    if (testing) console.log(this.target);
+  }
 }
+
+game = new gameState(wordList, true);
 
 // builds the game board (might be a 'nicer' way to write this)
 let gridRows = 6;
